@@ -1,0 +1,8 @@
+#!/bin/bash
+set +x
+set -e
+set -o pipefail
+
+cd "$(dirname "$0")"
+
+bindgen --whitelist-function TextToWords --whitelist-function TextToSentences BlingFire/blingfiretools/blingfiretokdll/blingfiretokdll.cpp -- -IBlingFire/blingfireclient.library/inc -IBlingFire/blingfirecompile.library/inc -DBLING_FIRE_NOWINDOWS -DBLING_FIRE_NOAP -x c++ > src/lib.rs

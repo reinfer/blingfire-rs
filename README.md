@@ -1,0 +1,25 @@
+# BlingFire in Rust
+
+`blingfire` is a thin Rust wrapper for the [BlingFire](https://github.com/microsoft/BlingFire) tokenization library.
+
+Add the library to `Cargo.toml` to get started
+```bash
+cargo add blingfire
+```
+
+The library exposes two functions `text_to_words` and `text_to_sentences`
+```rust
+use blingfire;
+
+fn main() {
+    let mut parsed = String::with_capacity(128);
+
+    blingfire::text_to_words("Cat,sat on   the mat.", &mut parsed).unwrap();
+    assert_eq!(parsed.as_str(), "Cat , sat on the mat .");
+
+    blingfire::text_to_sentences("Cat sat. Dog barked.", &mut parsed).unwrap();
+    assert_eq!(parsed.as_str(), "Cat sat.\nDog barked.");
+}
+```
+
+The code is licensed under the MIT License.

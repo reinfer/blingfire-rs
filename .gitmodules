@@ -1,0 +1,3 @@
+[submodule "blingfire-sys/BlingFire"]
+	path = blingfire-sys/BlingFire
+	url = https://github.com/microsoft/BlingFire.git

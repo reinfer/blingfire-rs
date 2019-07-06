@@ -1,0 +1,23 @@
+[package]
+name = "blingfire-sys"
+version = "0.1.1"
+authors = ["reinfer Ltd. <eng@reinfer.io>"]
+edition = "2018"
+description = "Bindings to the BlingFire C++ library"
+homepage = "https://github.com/reinfer/blingfire-rs"
+repository = "https://github.com/reinfer/blingfire-rs"
+keywords = [
+    "nlp",
+    "tokenizer",
+    "machine-learning",
+    "blingfire",
+]
+license = "MIT"
+
+build = "build.rs"
+links = "blingfiretokdll"
+
+[dependencies]
+
+[build-dependencies]
+cmake = "0.1.40"

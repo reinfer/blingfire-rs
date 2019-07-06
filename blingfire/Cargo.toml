@@ -1,0 +1,20 @@
+[package]
+name = "blingfire"
+version = "0.1.0"
+authors = ["reinfer Ltd. <eng@reinfer.io>"]
+edition = "2018"
+description = "Wrapper for the BlingFire tokenization library"
+homepage = "https://github.com/reinfer/blingfire-rs"
+repository = "https://github.com/reinfer/blingfire-rs"
+keywords = [
+    "nlp",
+    "tokenizer",
+    "machine-learning",
+    "blingfire",
+]
+license = "MIT"
+
+[dependencies]
+blingfire-sys = { path = "../blingfire-sys", version = "0.1.1" }
+failure = "0.1.5"
+failchain = "0.1015.2"
