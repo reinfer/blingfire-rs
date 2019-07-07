@@ -13,8 +13,15 @@ keywords = [
     "blingfire",
 ]
 license = "MIT"
+build = "build.rs"
 
 [dependencies]
 blingfire-sys = { path = "../blingfire-sys", version = "0.1.1" }
 failure = "0.1.5"
 failchain = "0.1015.2"
+
+[build-dependencies]
+skeptic = "0.13.4"
+
+[dev-dependencies]
+skeptic = "0.13.4"
