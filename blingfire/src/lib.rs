@@ -2,9 +2,11 @@ mod errors;
 
 use blingfire_sys::{TextToSentences as text_to_sentences_ffi, TextToWords as text_to_words_ffi};
 use failchain::ensure;
-use std::convert::TryInto;
-use std::i32;
-use std::os::raw::{c_char, c_int};
+use std::{
+    convert::TryInto,
+    i32,
+    os::raw::{c_char, c_int},
+};
 
 pub use crate::errors::{ErrorKind, Result};
 
