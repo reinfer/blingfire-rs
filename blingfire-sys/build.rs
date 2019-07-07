@@ -12,5 +12,7 @@ fn main() {
         "cargo:rustc-link-search=native={}/build",
         destination.display()
     );
-    println!("cargo:rustc-link-lib=blingfiretokdll");
+    println!("cargo:rustc-link-lib=static=blingfiretokdll_static");
+    println!("cargo:rustc-link-lib=static=fsaClient");
+    println!("cargo:rustc-link-lib=stdc++");
 }
