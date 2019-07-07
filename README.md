@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/reinfer/blingfire-rs.svg?branch=master)](https://travis-ci.org/reinfer/blingfire-rs)
+[![Documentation](https://docs.rs/blingfire/badge.svg)](https://docs.rs/blingfire)
+[![Crate](https://meritbadge.herokuapp.com/blingfire)](https://crates.io/crates/blingfire)
+
 # BlingFire in Rust
 
 `blingfire` is a thin Rust wrapper for the [BlingFire](https://github.com/microsoft/BlingFire) tokenization library.
