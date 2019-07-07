@@ -1,52 +1,35 @@
 mod errors;
 
 use blingfire_sys::{TextToSentences as text_to_sentences_ffi, TextToWords as text_to_words_ffi};
-use failchain::{bail, ResultExt};
-use std::{convert::TryInto, mem};
+use failchain::ensure;
+use std::convert::TryInto;
+use std::i32;
+use std::os::raw::{c_char, c_int};
 
 pub use crate::errors::{ErrorKind, Result};
 
 #[inline]
 pub fn text_to_words(source: &str, destination: &mut String) -> Result<()> {
-    tokenize(
-        |raw_source, raw_source_len, raw_destination, raw_destination_capacity| unsafe {
-            text_to_words_ffi(
-                raw_source,
-                raw_source_len,
-                raw_destination,
-                raw_destination_capacity,
-            )
-        },
-        source,
-        destination,
-    )
+    tokenize(text_to_words_ffi, source, destination)
 }
 
 #[inline]
 pub fn text_to_sentences(source: &str, destination: &mut String) -> Result<()> {
-    tokenize(
-        |raw_source, raw_source_len, raw_destination, raw_destination_capacity| unsafe {
-            text_to_sentences_ffi(
-                raw_source,
-                raw_source_len,
-                raw_destination,
-                raw_destination_capacity,
-            )
-        },
-        source,
-        destination,
-    )
+    tokenize(text_to_sentences_ffi, source, destination)
 }
 
+type Tokenizer = unsafe extern "C" fn(*const c_char, c_int, *mut c_char, c_int) -> c_int;
+
+// The maximum length is when the destination length can't fit in the maximum blingfire array. Worst
+// case, the source is tokenized by adding a space after every character + a null character at the
+// end.
+//
+// The maximum array size is defined in blingfire-sys/BlingFire/blingfireclient.library/inc/FALimits.h
+const MAX_SOURCE_LENGTH: usize = 1_000_000_000 / 2 - 2;
+
 #[inline]
-fn tokenize<Tokenizer>(tokenizer: Tokenizer, source: &str, destination: &mut String) -> Result<()>
+fn tokenize(tokenizer: Tokenizer, source: &str, destination: &mut String) -> Result<()>
 where
-    Tokenizer: Fn(
-        *const std::os::raw::c_char,
-        std::os::raw::c_int,
-        *mut std::os::raw::c_char,
-        std::os::raw::c_int,
-    ) -> std::os::raw::c_int,
 {
     destination.clear();
 
@@ -54,47 +37,35 @@ where
         return Ok(());
     }
 
-    loop {
-        let length = tokenizer(
-            source.as_ptr() as *const i8,
-            source
-                .len()
-                .try_into()
-                .chain_err(|| ErrorKind::SourceTooLarge)?,
-            destination.as_mut_ptr() as *mut i8,
-            destination
-                .capacity()
-                .try_into()
-                .chain_err(|| ErrorKind::DestinationTooLarge)?,
-        );
+    let source_len = source.len();
+    ensure!(source_len <= MAX_SOURCE_LENGTH, ErrorKind::SourceTooLarge);
+    let source_len = source_len as c_int;
 
-        if length < 0 {
-            // The C++ function returned -1, an unknown error.
-            bail!(ErrorKind::UnknownError);
-        } else if length as usize > destination.capacity() {
+    loop {
+        let length = unsafe {
+            tokenizer(
+                source.as_ptr() as *const c_char,
+                source_len,
+                destination.as_mut_ptr() as *mut c_char,
+                destination.capacity().try_into().unwrap_or(i32::MAX),
+            )
+        };
+
+        // The C++ function returned -1, an unknown error.
+        ensure!(length > 0, ErrorKind::UnknownError);
+        if length as usize > destination.capacity() {
             // There was not enough capacity in `destination` to store the parsed text.
             // Although the C++ function allocated an internal buffer with the parsed text, that's
-            // not exposed. We'll have to to reserve `length` additional bytes in `destination` (as
+            // not exposed. We'll have to reserve `length` bytes in `destination` (as
             // `destination.len() == 0`) and parse the `source` string again.
             destination.reserve_exact(length as usize);
             continue;
         } else {
-            // The text was successfully parsed.
-
-            // 1. Create a new string using the same buffer backing `destination` and with the
-            //    `length` returned by the C++ function. N.B. the input was valid utf-8, so the
-            //    parsed result will also be valid utf-8.
-            let new_destination = unsafe {
-                String::from_raw_parts(
-                    destination.as_mut_ptr(),
-                    length as usize - 1, // The C function adds a NULL character at the end.
-                    destination.capacity(),
-                )
-            };
-
-            // 2. Replace `destination` with the newly created string and ensure we don't run the
-            //    destructors for original `destination` string.
-            mem::forget(mem::replace(destination, new_destination));
+            // The text was successfully parsed, set the length to the return value (-1 for the
+            // null character).
+            unsafe {
+                destination.as_mut_vec().set_len(length as usize - 1);
+            }
             break;
         }
     }
@@ -104,7 +75,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{text_to_sentences, text_to_words};
+    use super::{text_to_sentences, text_to_words, MAX_SOURCE_LENGTH};
+
     const TEST_TEXT: &str = "I think. Sometimes, that my use of\ncommas, (and, occasionally, exclamation marks) can be excessive!!";
     const TEST_TEXT_WORDS: &str = "I think . Sometimes , that my use of commas , ( and , occasionally , exclamation marks ) can be excessive ! !";
     const TEST_TEXT_SENTENCES: &str = "I think.\nSometimes, that my use of commas, (and, occasionally, exclamation marks) can be excessive!!";
@@ -147,6 +119,13 @@ mod tests {
         text_to_words(TEST_TEXT, &mut parsed).unwrap();
         assert_eq!(TEST_TEXT_WORDS, parsed.as_str());
         assert_eq!(initial_capacity, parsed.capacity());
+    }
+
+    #[test]
+    fn text_to_words_string_too_long() {
+        let source = String::from_utf8(vec![b'.'; MAX_SOURCE_LENGTH + 1]).unwrap();
+        let mut destination = String::new();
+        assert!(text_to_words(&source, &mut destination).is_err());
     }
 
     #[test]

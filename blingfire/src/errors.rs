@@ -10,9 +10,6 @@ pub enum ErrorKind {
     #[fail(display = "Source buffer is too large (capacity > 2^32).")]
     SourceTooLarge,
 
-    #[fail(display = "Destination buffer is too large (capacity > 2^32).")]
-    DestinationTooLarge,
-
     #[fail(
         display = "An unknown error caused the tokenizer to fail (the C function returned -1)."
     )]
