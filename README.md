@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/reinfer/blingfire-rs.svg?branch=master)](https://travis-ci.org/reinfer/blingfire-rs)
+[![Build Status](https://travis-ci.com/reinfer/blingfire-rs.svg?branch=master)](https://travis-ci.com/reinfer/blingfire-rs)
 [![Documentation](https://docs.rs/blingfire/badge.svg)](https://docs.rs/blingfire)
 [![Crate](https://meritbadge.herokuapp.com/blingfire)](https://crates.io/crates/blingfire)
 
