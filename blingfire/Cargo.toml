@@ -1,6 +1,6 @@
 [package]
 name = "blingfire"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["reinfer Ltd. <eng@reinfer.io>"]
 edition = "2018"
 description = "Wrapper for the BlingFire tokenization library"
@@ -16,7 +16,7 @@ license = "MIT"
 build = "build.rs"
 
 [dependencies]
-blingfire-sys = { path = "../blingfire-sys", version = "0.1.1" }
+blingfire-sys = { path = "../blingfire-sys", version = "0.2.0" }
 failure = "0.1.5"
 failchain = "0.1015.2"
 

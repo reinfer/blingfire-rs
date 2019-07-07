@@ -1,6 +1,6 @@
 [package]
 name = "blingfire-sys"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["reinfer Ltd. <eng@reinfer.io>"]
 edition = "2018"
 description = "Bindings to the BlingFire C++ library"
