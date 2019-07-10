@@ -16,7 +16,7 @@ The library exposes two functions `text_to_words` and `text_to_sentences`
 use blingfire;
 
 fn main() {
-    let mut parsed = String::with_capacity(128);
+    let mut parsed = String::new();
 
     blingfire::text_to_words("Cat,sat on   the mat.", &mut parsed).unwrap();
     assert_eq!(parsed.as_str(), "Cat , sat on the mat .");
