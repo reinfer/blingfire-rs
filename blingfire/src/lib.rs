@@ -1,6 +1,9 @@
 mod errors;
 
-use blingfire_sys::{TextToSentences as text_to_sentences_ffi, TextToWords as text_to_words_ffi};
+use blingfire_sys::{
+    FALimits_MaxArrSize as FA_LIMITS_MAX_ARRAY_SIZE, TextToSentences as text_to_sentences_ffi,
+    TextToWords as text_to_words_ffi,
+};
 use failchain::ensure;
 use std::{
     convert::TryInto,
@@ -9,6 +12,8 @@ use std::{
 };
 
 pub use crate::errors::{ErrorKind, Result};
+
+pub const MAX_TEXT_LENGTH: usize = FA_LIMITS_MAX_ARRAY_SIZE as usize;
 
 #[inline]
 pub fn text_to_words(source: &str, destination: &mut String) -> Result<()> {
@@ -22,13 +27,6 @@ pub fn text_to_sentences(source: &str, destination: &mut String) -> Result<()> {
 
 type Tokenizer = unsafe extern "C" fn(*const c_char, c_int, *mut c_char, c_int) -> c_int;
 
-// The maximum length is when the destination length can't fit in the maximum blingfire array. Worst
-// case, the source is tokenized by adding a space after every character + a null character at the
-// end.
-//
-// The maximum array size is defined in blingfire-sys/BlingFire/blingfireclient.library/inc/FALimits.h
-const MAX_SOURCE_LENGTH: usize = 1_000_000_000 / 2 - 2;
-
 #[inline]
 fn tokenize(tokenizer: Tokenizer, source: &str, destination: &mut String) -> Result<()>
 where
@@ -40,7 +38,7 @@ where
     }
 
     let source_len = source.len();
-    ensure!(source_len <= MAX_SOURCE_LENGTH, ErrorKind::SourceTooLarge);
+    ensure!(source_len <= MAX_TEXT_LENGTH, ErrorKind::SourceTooLarge);
     let source_len = source_len as c_int;
 
     loop {
@@ -55,6 +53,7 @@ where
 
         // The C++ function returned -1, an unknown error.
         ensure!(length > 0, ErrorKind::UnknownError);
+
         if length as usize > destination.capacity() {
             // There was not enough capacity in `destination` to store the parsed text.
             // Although the C++ function allocated an internal buffer with the parsed text, that's
@@ -77,7 +76,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{text_to_sentences, text_to_words, MAX_SOURCE_LENGTH};
+    use super::{errors::ErrorKind, text_to_sentences, text_to_words, MAX_TEXT_LENGTH};
 
     const TEST_TEXT: &str = "I think. Sometimes, that my use of\ncommas, (and, occasionally, exclamation marks) can be excessive!!";
     const TEST_TEXT_WORDS: &str = "I think . Sometimes , that my use of commas , ( and , occasionally , exclamation marks ) can be excessive ! !";
@@ -125,9 +124,10 @@ mod tests {
 
     #[test]
     fn text_to_words_string_too_long() {
-        let source = String::from_utf8(vec![b'.'; MAX_SOURCE_LENGTH + 1]).unwrap();
+        let source = String::from_utf8(vec![b'.'; MAX_TEXT_LENGTH + 1]).unwrap();
         let mut destination = String::new();
-        assert!(text_to_words(&source, &mut destination).is_err());
+        let result = text_to_words(&source, &mut destination);
+        assert!(result.is_err() && *result.unwrap_err().kind() == ErrorKind::SourceTooLarge);
     }
 
     #[test]
