@@ -4,14 +4,14 @@ use blingfire_sys::{
     FALimits_MaxArrSize as FA_LIMITS_MAX_ARRAY_SIZE, TextToSentences as text_to_sentences_ffi,
     TextToWords as text_to_words_ffi,
 };
-use failchain::ensure;
+use snafu::{self, ensure};
 use std::{
     convert::TryInto,
     i32,
     os::raw::{c_char, c_int},
 };
 
-pub use crate::errors::{ErrorKind, Result};
+pub use crate::errors::{Error, Result};
 
 pub const MAX_TEXT_LENGTH: usize = FA_LIMITS_MAX_ARRAY_SIZE as usize;
 
@@ -38,7 +38,7 @@ where
     }
 
     let source_len = source.len();
-    ensure!(source_len <= MAX_TEXT_LENGTH, ErrorKind::SourceTooLarge);
+    ensure!(source_len <= MAX_TEXT_LENGTH, errors::SourceTooLarge);
     let source_len = source_len as c_int;
 
     loop {
@@ -52,7 +52,7 @@ where
         };
 
         // The C++ function returned -1, an unknown error.
-        ensure!(length > 0, ErrorKind::UnknownError);
+        ensure!(length > 0, errors::UnknownError);
 
         if length as usize > destination.capacity() {
             // There was not enough capacity in `destination` to store the parsed text.
@@ -76,7 +76,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::{errors::ErrorKind, text_to_sentences, text_to_words, MAX_TEXT_LENGTH};
+    use super::{errors::Error, text_to_sentences, text_to_words, MAX_TEXT_LENGTH};
 
     const TEST_TEXT: &str = "I think. Sometimes, that my use of\ncommas, (and, occasionally, exclamation marks) can be excessive!!";
     const TEST_TEXT_WORDS: &str = "I think . Sometimes , that my use of commas , ( and , occasionally , exclamation marks ) can be excessive ! !";
@@ -127,7 +127,7 @@ mod tests {
         let source = String::from_utf8(vec![b'.'; MAX_TEXT_LENGTH + 1]).unwrap();
         let mut destination = String::new();
         let result = text_to_words(&source, &mut destination);
-        assert!(result.is_err() && *result.unwrap_err().kind() == ErrorKind::SourceTooLarge);
+        assert!(result.is_err() && result.unwrap_err() == Error::SourceTooLarge);
     }
 
     #[test]
