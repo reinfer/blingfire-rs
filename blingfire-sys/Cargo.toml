@@ -1,6 +1,6 @@
 [package]
 name = "blingfire-sys"
-version = "0.2.1"
+version = "1.0.0"
 authors = ["reinfer Ltd. <eng@reinfer.io>"]
 edition = "2018"
 description = "Bindings to the BlingFire C++ library"
@@ -17,7 +17,5 @@ license = "MIT"
 build = "build.rs"
 links = "blingfiretokdll"
 
-[dependencies]
-
 [build-dependencies]
-cmake = "0.1.40"
+cmake = "0.1.44"

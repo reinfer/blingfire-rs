@@ -1,6 +1,6 @@
 [package]
 name = "blingfire"
-version = "0.3.1"
+version = "1.0.0"
 authors = ["reinfer Ltd. <eng@reinfer.io>"]
 edition = "2018"
 description = "Wrapper for the BlingFire tokenization library"
@@ -16,8 +16,8 @@ license = "MIT"
 build = "build.rs"
 
 [dependencies]
-blingfire-sys = { path = "../blingfire-sys", version = "0.2.1" }
-snafu = "0.4.3"
+blingfire-sys = { path = "../blingfire-sys", version = "1.0.0" }
+snafu = "0.6.8"
 
 [build-dependencies]
 skeptic = "0.13.4"
