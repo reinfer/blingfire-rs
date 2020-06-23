@@ -16,7 +16,7 @@ license = "MIT"
 build = "build.rs"
 
 [dependencies]
-blingfire-sys = { path = "../blingfire-sys", version = "1.0.0" }
+blingfire-sys = { path = "../blingfire-sys", version = "1.0.1" }
 snafu = "0.6.8"
 
 [build-dependencies]

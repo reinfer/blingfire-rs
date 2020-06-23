@@ -1,6 +1,6 @@
 [package]
 name = "blingfire-sys"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["reinfer Ltd. <eng@reinfer.io>"]
 edition = "2018"
 description = "Bindings to the BlingFire C++ library"
@@ -16,6 +16,15 @@ license = "MIT"
 
 build = "build.rs"
 links = "blingfiretokdll"
+
+exclude = [
+    "BlingFire/blingfirecompile.library",
+    "BlingFire/ldbsrc",
+    "BlingFire/dist-pypi",
+    "BlingFire/scripts",
+    "BlingFire/projs",
+    "BlingFire/azure-pipelines.yml",
+]
 
 [build-dependencies]
 cmake = "0.1.44"
