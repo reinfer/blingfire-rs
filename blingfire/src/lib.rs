@@ -85,7 +85,7 @@ where
     let source_len = source.len();
     ensure!(
         source_len <= MAX_TEXT_LENGTH,
-        errors::SourceTooLarge {
+        errors::SourceTooLargeSnafu {
             max_text_length: MAX_TEXT_LENGTH
         }
     );
@@ -102,7 +102,7 @@ where
         };
 
         // The C++ function returned -1, an unknown error.
-        ensure!(length > 0, errors::UnknownError);
+        ensure!(length > 0, errors::UnknownSnafu);
 
         if length as usize > destination.capacity() {
             // There was not enough capacity in `destination` to store the parsed text.
@@ -180,7 +180,7 @@ mod tests {
         assert!(
             result.is_err()
                 && result.unwrap_err()
-                    == Error::SourceTooLarge {
+                    == Error::SourceTooLargeSnafu {
                         max_text_length: MAX_TEXT_LENGTH
                     }
         );

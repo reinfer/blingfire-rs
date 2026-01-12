@@ -5,6 +5,7 @@ fn main() {
         .always_configure(true)
         .define("BLING_FIRE_VERSION_MAJOR", "1")
         .define("BLING_FIRE_VERSION_MINOR", "0")
+        .define("CMAKE_POLICY_VERSION_MINIMUM", "3.5")
         .build_target("blingfiretokdll_static")
         .build();
 
