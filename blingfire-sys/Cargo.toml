@@ -27,4 +27,4 @@ exclude = [
 ]
 
 [build-dependencies]
-cmake = "0.1.44"
+cmake = "0.1.57"
