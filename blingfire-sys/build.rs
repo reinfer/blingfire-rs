@@ -1,7 +1,14 @@
 use cmake::Config;
 
 fn main() {
-    let destination = Config::new("BlingFire")
+    let is_macos = std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("macos");
+
+    let mut config = Config::new("BlingFire");
+    if is_macos {
+        // Modern CMake dropped support for BlingFire's pre-3.5 cmake_minimum_required.
+        config.define("CMAKE_POLICY_VERSION_MINIMUM", "3.5");
+    }
+    let destination = config
         .always_configure(true)
         .define("BLING_FIRE_VERSION_MAJOR", "1")
         .define("BLING_FIRE_VERSION_MINOR", "0")
@@ -14,5 +21,7 @@ fn main() {
     );
     println!("cargo:rustc-link-lib=static=blingfiretokdll_static");
     println!("cargo:rustc-link-lib=static=fsaClient");
-    println!("cargo:rustc-link-lib=stdc++");
+    // macOS ships libc++, not libstdc++; Linux keeps stdc++ unchanged.
+    let cxx = if is_macos { "c++" } else { "stdc++" };
+    println!("cargo:rustc-link-lib={cxx}");
 }
